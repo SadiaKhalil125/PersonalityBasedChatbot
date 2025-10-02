@@ -1,5 +1,9 @@
 import streamlit as st
 from groq import Groq
+import requests 
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 # Page config
 st.set_page_config(page_title="Personality Chatbot", page_icon="🤖")
@@ -32,13 +36,34 @@ PERSONALITIES = {
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
+
+# List of available models on Groq
+
+client = Groq()
+
+models = client.models.list()
+
+listofmodels = []
+
+listofmodels = ['deepseek-r1-distill-llama-70b', 'moonshotai/kimi-k2-instruct', 'meta-llama/llama-guard-4-12b',
+                'gemma2-9b-it', 'whisper-large-v3-turbo', 'playai-tts-arabic', 'groq/compound-mini', 'openai/gpt-oss-20b', 'allam-2-7b', 'playai-tts',
+                'meta-llama/llama-4-maverick-17b-128e-instruct', 'whisper-large-v3', 'llama-3.1-8b-instant', 'moonshotai/kimi-k2-instruct-0905', 'meta-llama/llama-prompt-guard-2-86m',
+                'meta-llama/llama-prompt-guard-2-22m', 'llama-3.3-70b-versatile', 'openai/gpt-oss-120b', 
+                'meta-llama/llama-4-scout-17b-16e-instruct', 'groq/compound', 'qwen/qwen3-32b']
+
+# for model in models.data:
+    # listofmodels.append(model.id)
+
 # Sidebar
 with st.sidebar:
     st.title("⚙️ Settings")
     
     # Model selection
-    model = st.text_input("Model Name", value="llama-3.3-70b-versatile", help="Enter Groq model name")
-    
+    model = st.selectbox(
+        "Select Model",
+        options=list(listofmodels)
+    )
+
     # Personality selection
     personality = st.selectbox(
         "Select Personality",
@@ -74,7 +99,6 @@ if prompt := st.chat_input("Type your message..."):
     # Generate response
     with st.chat_message("assistant"):
         try:
-            client = Groq()
             
             # Prepare messages with system prompt
             messages = [
